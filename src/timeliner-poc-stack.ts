@@ -4,7 +4,11 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as s3n from 'aws-cdk-lib/aws-s3-notifications';
+import * as mediaconvert from 'aws-cdk-lib/aws-mediaconvert';
 import { Construct } from 'constructs';
+import { mediaConvertJobTemplate } from './mediaconvert-config';
 
 export class TimelinerPocStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -142,6 +146,17 @@ export class TimelinerPocStack extends cdk.Stack {
     });
     cdk.Tags.of(mediaConvertRole).add('POC', 'MediaConverter');
 
+    // MediaConvert Job Template
+    const jobTemplate = new mediaconvert.CfnJobTemplate(this, 'MediaConvertJobTemplate', {
+      settingsJson: mediaConvertJobTemplate.Settings,
+      name: 'TimelinerPoCTemplate',
+      description: 'Job template for Timeliner PoC - Converts videos to HLS format with multiple resolutions',
+      category: 'Custom',
+      priority: 0,
+      statusUpdateInterval: 'SECONDS_60'
+    });
+    cdk.Tags.of(jobTemplate).add('POC', 'MediaConverter');
+
     // CloudFront Origin Access Identity
     const originAccessIdentity = new cloudfront.OriginAccessIdentity(this, 'OAI', {
       comment: 'OAI for Timeliner Output Bucket'
@@ -179,6 +194,89 @@ export class TimelinerPocStack extends cdk.Stack {
       logIncludesCookies: false,
     });
     cdk.Tags.of(distribution).add('POC', 'MediaConverter');
+
+    // Lambda function para procesar videos
+    const videoProcessorFunction = new lambda.Function(this, 'VideoProcessorFunction', {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: 'video-processor.handler',
+      code: lambda.Code.fromAsset('src/lambda'),
+      timeout: cdk.Duration.minutes(5),
+      memorySize: 512,
+      environment: {
+        OUTPUT_BUCKET: outputBucket.bucketName,
+        MEDIACONVERT_ROLE_ARN: mediaConvertRole.roleArn,
+        JOB_TEMPLATE_NAME: jobTemplate.name!
+      },
+      description: 'Processes uploaded videos using AWS MediaConvert'
+    });
+    cdk.Tags.of(videoProcessorFunction).add('POC', 'MediaConverter');
+
+    // Rol IAM para Lambda
+    const lambdaRole = videoProcessorFunction.role as iam.Role;
+    lambdaRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'mediaconvert:CreateJob',
+        'mediaconvert:DescribeEndpoints',
+        'mediaconvert:GetJob',
+        'mediaconvert:ListJobs'
+      ],
+      resources: ['*']
+    }));
+
+    lambdaRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'iam:PassRole'
+      ],
+      resources: [mediaConvertRole.roleArn]
+    }));
+
+    lambdaRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'logs:CreateLogGroup',
+        'logs:CreateLogStream',
+        'logs:PutLogEvents'
+      ],
+      resources: ['*']
+    }));
+
+    // Dar permisos a Lambda para leer del bucket input
+    inputBucket.grantRead(videoProcessorFunction);
+
+    // Configurar trigger S3 para Lambda
+    inputBucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED,
+      new s3n.LambdaDestination(videoProcessorFunction),
+      {
+        suffix: '.mp4'
+      }
+    );
+
+    inputBucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED,
+      new s3n.LambdaDestination(videoProcessorFunction),
+      {
+        suffix: '.mov'
+      }
+    );
+
+    inputBucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED,
+      new s3n.LambdaDestination(videoProcessorFunction),
+      {
+        suffix: '.avi'
+      }
+    );
+
+    inputBucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED,
+      new s3n.LambdaDestination(videoProcessorFunction),
+      {
+        suffix: '.mkv'
+      }
+    );
 
     // Outputs
     new cdk.CfnOutput(this, 'InputBucketName', {
@@ -221,6 +319,18 @@ export class TimelinerPocStack extends cdk.Stack {
       value: mediaConvertLogGroup.logGroupName,
       description: 'Name of the CloudWatch Log Group for MediaConvert',
       exportName: 'TimelinerMediaConvertLogGroup'
+    });
+
+    new cdk.CfnOutput(this, 'VideoProcessorFunctionName', {
+      value: videoProcessorFunction.functionName,
+      description: 'Name of the Lambda function that processes videos',
+      exportName: 'TimelinerVideoProcessorFunction'
+    });
+
+    new cdk.CfnOutput(this, 'MediaConvertJobTemplateName', {
+      value: jobTemplate.name!,
+      description: 'Name of the MediaConvert job template',
+      exportName: 'TimelinerJobTemplate'
     });
   }
 }
