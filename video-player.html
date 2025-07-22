@@ -281,22 +281,44 @@
                 videoUrl = `${currentCloudFrontUrl}/${currentVideoPath.replace('.m3u8', '')}_${quality}.m3u8`;
             }
 
-            loadVideoUrl(videoUrl, quality);
+            loadVideoUrl(videoUrl, quality, true);
 
             // Actualizar botón activo
             document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
         }
 
-        function loadVideoUrl(url, quality) {
+        function loadVideoUrl(url, quality, preserveTime = false) {
             updateStatus('Cargando video...');
             updateCurrentUrl(url);
             updateCurrentQuality(quality);
+
+            // Guardar el tiempo actual si se debe preservar
+            let currentTime = 0;
+            let wasPlaying = false;
+            
+            if (preserveTime && player.duration() > 0) {
+                currentTime = player.currentTime();
+                wasPlaying = !player.paused();
+            }
 
             player.src({
                 src: url,
                 type: 'application/x-mpegURL'
             });
+
+            // Si necesitamos preservar el tiempo, configurar listener para cuando el video esté listo
+            if (preserveTime && currentTime > 0) {
+                const timeHandler = function() {
+                    player.currentTime(currentTime);
+                    if (wasPlaying) {
+                        player.play();
+                    }
+                    player.off('loadeddata', timeHandler);
+                };
+                
+                player.on('loadeddata', timeHandler);
+            }
 
             player.load();
         }
