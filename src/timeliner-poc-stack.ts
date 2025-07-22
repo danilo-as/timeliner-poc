@@ -3,12 +3,36 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as logs from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 
 export class TimelinerPocStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    // S3 Bucket para logs de acceso
+    const logsBucket = new s3.Bucket(this, 'TimelinerLogsBucket', {
+      bucketName: `timeliner-logs-${cdk.Stack.of(this).account}-${cdk.Stack.of(this).region}`,
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // Solo para PoC
+      autoDeleteObjects: true, // Solo para PoC
+      versioned: false,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      lifecycleRules: [{
+        id: 'delete-old-logs',
+        enabled: true,
+        expiration: cdk.Duration.days(90), // Mantener logs por 90 días
+      }]
+    });
+    cdk.Tags.of(logsBucket).add('POC', 'MediaConverter');
+
+    // CloudWatch Log Group para MediaConvert
+    const mediaConvertLogGroup = new logs.LogGroup(this, 'MediaConvertLogGroup', {
+      logGroupName: '/aws/mediaconvert/timeliner-poc',
+      retention: logs.RetentionDays.ONE_MONTH, // Retener por 30 días
+      removalPolicy: cdk.RemovalPolicy.DESTROY // Solo para PoC
+    });
+    cdk.Tags.of(mediaConvertLogGroup).add('POC', 'MediaConverter');
 
     // S3 Bucket para videos originales (input)
     const inputBucket = new s3.Bucket(this, 'TimelinerInputBucket', {
@@ -18,6 +42,8 @@ export class TimelinerPocStack extends cdk.Stack {
       versioned: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      serverAccessLogsBucket: logsBucket,
+      serverAccessLogsPrefix: 'input-bucket-logs/',
       cors: [{
         allowedHeaders: ['*'],
         allowedMethods: [
@@ -47,6 +73,8 @@ export class TimelinerPocStack extends cdk.Stack {
       versioned: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      serverAccessLogsBucket: logsBucket,
+      serverAccessLogsPrefix: 'output-bucket-logs/',
       cors: [{
         allowedHeaders: ['*'],
         allowedMethods: [
@@ -93,6 +121,19 @@ export class TimelinerPocStack extends cdk.Stack {
                 outputBucket.bucketArn,
                 `${outputBucket.bucketArn}/*`
               ]
+            }),
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: [
+                'logs:CreateLogGroup',
+                'logs:CreateLogStream',
+                'logs:PutLogEvents',
+                'logs:DescribeLogStreams'
+              ],
+              resources: [
+                mediaConvertLogGroup.logGroupArn,
+                `${mediaConvertLogGroup.logGroupArn}:*`
+              ]
             })
           ]
         })
@@ -130,6 +171,11 @@ export class TimelinerPocStack extends cdk.Stack {
       enabled: true,
       httpVersion: cloudfront.HttpVersion.HTTP2,
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
+      // Habilitar logs de acceso de CloudFront
+      enableLogging: true,
+      logBucket: logsBucket,
+      logFilePrefix: 'cloudfront-logs/',
+      logIncludesCookies: false,
     });
     cdk.Tags.of(distribution).add('POC', 'MediaConverter');
 
@@ -162,6 +208,18 @@ export class TimelinerPocStack extends cdk.Stack {
       value: distribution.distributionId,
       description: 'CloudFront distribution ID',
       exportName: 'TimelinerCloudFrontDistributionId'
+    });
+
+    new cdk.CfnOutput(this, 'LogsBucketName', {
+      value: logsBucket.bucketName,
+      description: 'Name of the S3 bucket for access logs',
+      exportName: 'TimelinerLogsBucket'
+    });
+
+    new cdk.CfnOutput(this, 'MediaConvertLogGroupName', {
+      value: mediaConvertLogGroup.logGroupName,
+      description: 'Name of the CloudWatch Log Group for MediaConvert',
+      exportName: 'TimelinerMediaConvertLogGroup'
     });
   }
 }
