@@ -21,6 +21,9 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "dependencies": {
+    "@aws-sdk/client-mediaconvert": "3.849.0"
+  },
   "devDependencies": {
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
@@ -28,6 +31,7 @@
     "aws-cdk": "2.1021.0",
     "aws-cdk-lib": "2.206.0",
     "constructs": "10.4.2",
+    "esbuild": "0.25.8",
     "husky": "9.1.7",
     "source-map-support": "0.5.21",
     "ts-node": "10.9.2",

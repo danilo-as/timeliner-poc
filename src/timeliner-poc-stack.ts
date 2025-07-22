@@ -5,6 +5,7 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as s3n from 'aws-cdk-lib/aws-s3-notifications';
 import * as mediaconvert from 'aws-cdk-lib/aws-mediaconvert';
 import { Construct } from 'constructs';
@@ -196,18 +197,19 @@ export class TimelinerPocStack extends cdk.Stack {
     cdk.Tags.of(distribution).add('POC', 'MediaConverter');
 
     // Lambda function para procesar videos
-    const videoProcessorFunction = new lambda.Function(this, 'VideoProcessorFunction', {
-      runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'video-processor.handler',
-      code: lambda.Code.fromAsset('src/lambda'),
-      timeout: cdk.Duration.minutes(5),
+    const videoProcessorFunction = new nodejs.NodejsFunction(this, 'VideoProcessorFunction', {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: 'src/lambda/video-processor.js',
+      handler: 'handler',
+      timeout: cdk.Duration.minutes(15),
       memorySize: 512,
       environment: {
         OUTPUT_BUCKET: outputBucket.bucketName,
         MEDIACONVERT_ROLE_ARN: mediaConvertRole.roleArn,
-        JOB_TEMPLATE_NAME: jobTemplate.name!
+        JOB_TEMPLATE_NAME: jobTemplate.name!,
+        CLOUDFRONT_DOMAIN: distribution.distributionDomainName
       },
-      description: 'Processes uploaded videos using AWS MediaConvert'
+      description: 'Processes uploaded videos using AWS MediaConvert',
     });
     cdk.Tags.of(videoProcessorFunction).add('POC', 'MediaConverter');
 

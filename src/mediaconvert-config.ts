@@ -1,6 +1,4 @@
 export const mediaConvertJobTemplate = {
-  "Name": "TimelinerPoCTemplate",
-  "Description": "MediaConvert job template for Timeliner PoC - Converts videos to HLS format",
   "Settings": {
     "OutputGroups": [
       {
@@ -10,481 +8,182 @@ export const mediaConvertJobTemplate = {
           "HlsGroupSettings": {
             "ManifestDurationFormat": "INTEGER",
             "SegmentLength": 10,
-            "SegmentControl": "SEGMENTED_FILES",
+            "MinSegmentLength": 0,
             "DirectoryStructure": "SINGLE_DIRECTORY",
-            "ManifestCompression": "NONE",
-            "StreamInfResolution": "INCLUDE",
-            "ClientCache": "ENABLED",
-            "AudioOnlyHeader": "INCLUDE",
-            "CodecSpecification": "RFC_4281",
-            "OutputSelection": "MANIFESTS_AND_SEGMENTS",
             "ProgramDateTime": "EXCLUDE",
-            "ProgramDateTimePeriod": 600,
-            "TimestampDeltaMilliseconds": 0,
             "SegmentLengthControl": "EXACT",
-            "CaptionLanguageSetting": "OMIT",
-            "CaptionSegmentLengthControl": "LARGE_SEGMENTS"
+            "ManifestCompression": "NONE",
+            "ClientCache": "ENABLED",
+            "AudioOnlyHeader": "INCLUDE"
           }
         },
         "Outputs": [
           {
+            "NameModifier": "_1080p",
             "VideoDescription": {
               "Width": 1920,
               "Height": 1080,
               "CodecSettings": {
                 "Codec": "H_264",
                 "H264Settings": {
-                  "RateControlMode": "QVBR",
-                  "QvbrSettings": {
-                    "QvbrQualityLevel": 8
-                  },
+                  "RateControlMode": "CBR",
+                  "Bitrate": 5000000,
                   "CodecProfile": "HIGH",
                   "CodecLevel": "AUTO",
-                  "FieldEncoding": "PAFF",
-                  "SceneChangeDetect": "ENABLED",
-                  "QualityTuningLevel": "SINGLE_PASS",
-                  "FramerateConversionAlgorithm": "DUPLICATE_DROP",
-                  "UnregisteredSeiTimecode": "DISABLED",
-                  "GopSizeUnits": "FRAMES",
-                  "ParControl": "SPECIFIED",
-                  "NumberBFramesBetweenReferenceFrames": 2,
-                  "RepeatPps": "DISABLED",
-                  "DynamicSubGop": "STATIC",
-                  "GopSize": 90,
-                  "GopBReference": "DISABLED",
-                  "SlowPal": "DISABLED",
-                  "EntropyEncoding": "CABAC",
                   "FramerateControl": "INITIALIZE_FROM_SOURCE",
-                  "FlickerAdaptiveQuantization": "DISABLED",
-                  "SpatialAdaptiveQuantization": "ENABLED",
-                  "TemporalAdaptiveQuantization": "ENABLED",
-                  "ParNumerator": 1,
-                  "ParDenominator": 1
+                  "GopSize": 90,
+                  "EntropyEncoding": "CABAC"
                 }
-              },
-              "TimecodeInsertion": "DISABLED",
-              "AntiAlias": "ENABLED",
-              "RespondToAfd": "NONE",
-              "Sharpness": 50,
-              "ColorMetadata": "INSERT"
+              }
             },
             "AudioDescriptions": [
               {
-                "AudioTypeControl": "FOLLOW_INPUT",
-                "AudioSourceName": "Audio Selector 1",
                 "CodecSettings": {
                   "Codec": "AAC",
                   "AacSettings": {
-                    "AudioDescriptionBroadcasterMix": "NORMAL",
                     "Bitrate": 128000,
-                    "RateControlMode": "CBR",
-                    "CodecProfile": "LC",
                     "CodingMode": "CODING_MODE_2_0",
-                    "RawFormat": "NONE",
-                    "SampleRate": 48000,
-                    "Specification": "MPEG4"
+                    "SampleRate": 48000
                   }
-                },
-                "LanguageCodeControl": "FOLLOW_INPUT"
+                }
               }
             ],
             "OutputSettings": {
-              "HlsSettings": {
-                "AudioGroupId": "audio",
-                "AudioOnlyContainer": "AUTOMATIC",
-                "IFrameOnlyManifest": "EXCLUDE",
-                "AudioTrackType": "ALTERNATE_AUDIO_AUTO_SELECT_DEFAULT"
-              }
+              "HlsSettings": {}
             },
             "ContainerSettings": {
-              "Container": "M3U8",
-              "M3u8Settings": {
-                "AudioFramesPerPes": 4,
-                "PcrControl": "PCR_EVERY_PES_PACKET",
-                "PmtPid": 480,
-                "PrivateMetadataPid": 503,
-                "ProgramNumber": 1,
-                "PatInterval": 0,
-                "PmtInterval": 0,
-                "VideoPid": 481,
-                "AudioPids": [
-                  482,
-                  483,
-                  484,
-                  485,
-                  486,
-                  487,
-                  488,
-                  489,
-                  490,
-                  491,
-                  492,
-                  493,
-                  494,
-                  495,
-                  496,
-                  497,
-                  498
-                ],
-                "NielsenId3Behavior": "NO_PASSTHROUGH",
-                "AudioDuration": "DEFAULT_CODEC_DURATION"
-              }
-            },
-            "NameModifier": "-1080p"
+              "Container": "M3U8"
+            }
           },
           {
+            "NameModifier": "_720p",
             "VideoDescription": {
               "Width": 1280,
               "Height": 720,
               "CodecSettings": {
                 "Codec": "H_264",
                 "H264Settings": {
-                  "RateControlMode": "QVBR",
-                  "QvbrSettings": {
-                    "QvbrQualityLevel": 7
-                  },
+                  "RateControlMode": "CBR",
+                  "Bitrate": 3000000,
                   "CodecProfile": "MAIN",
                   "CodecLevel": "AUTO",
-                  "FieldEncoding": "PAFF",
-                  "SceneChangeDetect": "ENABLED",
-                  "QualityTuningLevel": "SINGLE_PASS",
-                  "FramerateConversionAlgorithm": "DUPLICATE_DROP",
-                  "UnregisteredSeiTimecode": "DISABLED",
-                  "GopSizeUnits": "FRAMES",
-                  "ParControl": "SPECIFIED",
-                  "NumberBFramesBetweenReferenceFrames": 2,
-                  "RepeatPps": "DISABLED",
-                  "DynamicSubGop": "STATIC",
-                  "GopSize": 90,
-                  "GopBReference": "DISABLED",
-                  "SlowPal": "DISABLED",
-                  "EntropyEncoding": "CABAC",
                   "FramerateControl": "INITIALIZE_FROM_SOURCE",
-                  "FlickerAdaptiveQuantization": "DISABLED",
-                  "SpatialAdaptiveQuantization": "ENABLED",
-                  "TemporalAdaptiveQuantization": "ENABLED",
-                  "ParNumerator": 1,
-                  "ParDenominator": 1
+                  "GopSize": 90,
+                  "EntropyEncoding": "CABAC"
                 }
-              },
-              "TimecodeInsertion": "DISABLED",
-              "AntiAlias": "ENABLED",
-              "RespondToAfd": "NONE",
-              "Sharpness": 50,
-              "ColorMetadata": "INSERT"
+              }
             },
             "AudioDescriptions": [
               {
-                "AudioTypeControl": "FOLLOW_INPUT",
-                "AudioSourceName": "Audio Selector 1",
                 "CodecSettings": {
                   "Codec": "AAC",
                   "AacSettings": {
-                    "AudioDescriptionBroadcasterMix": "NORMAL",
                     "Bitrate": 96000,
-                    "RateControlMode": "CBR",
-                    "CodecProfile": "LC",
                     "CodingMode": "CODING_MODE_2_0",
-                    "RawFormat": "NONE",
-                    "SampleRate": 48000,
-                    "Specification": "MPEG4"
+                    "SampleRate": 48000
                   }
-                },
-                "LanguageCodeControl": "FOLLOW_INPUT"
+                }
               }
             ],
             "OutputSettings": {
-              "HlsSettings": {
-                "AudioGroupId": "audio",
-                "AudioOnlyContainer": "AUTOMATIC",
-                "IFrameOnlyManifest": "EXCLUDE",
-                "AudioTrackType": "ALTERNATE_AUDIO_AUTO_SELECT_DEFAULT"
-              }
+              "HlsSettings": {}
             },
             "ContainerSettings": {
-              "Container": "M3U8",
-              "M3u8Settings": {
-                "AudioFramesPerPes": 4,
-                "PcrControl": "PCR_EVERY_PES_PACKET",
-                "PmtPid": 480,
-                "PrivateMetadataPid": 503,
-                "ProgramNumber": 1,
-                "PatInterval": 0,
-                "PmtInterval": 0,
-                "VideoPid": 481,
-                "AudioPids": [
-                  482,
-                  483,
-                  484,
-                  485,
-                  486,
-                  487,
-                  488,
-                  489,
-                  490,
-                  491,
-                  492,
-                  493,
-                  494,
-                  495,
-                  496,
-                  497,
-                  498
-                ],
-                "NielsenId3Behavior": "NO_PASSTHROUGH",
-                "AudioDuration": "DEFAULT_CODEC_DURATION"
-              }
-            },
-            "NameModifier": "-720p"
+              "Container": "M3U8"
+            }
           },
           {
+            "NameModifier": "_480p",
             "VideoDescription": {
               "Width": 640,
               "Height": 480,
               "CodecSettings": {
                 "Codec": "H_264",
                 "H264Settings": {
-                  "RateControlMode": "QVBR",
-                  "QvbrSettings": {
-                    "QvbrQualityLevel": 6
-                  },
+                  "RateControlMode": "CBR",
+                  "Bitrate": 1500000,
                   "CodecProfile": "MAIN",
                   "CodecLevel": "AUTO",
-                  "FieldEncoding": "PAFF",
-                  "SceneChangeDetect": "ENABLED",
-                  "QualityTuningLevel": "SINGLE_PASS",
-                  "FramerateConversionAlgorithm": "DUPLICATE_DROP",
-                  "UnregisteredSeiTimecode": "DISABLED",
-                  "GopSizeUnits": "FRAMES",
-                  "ParControl": "SPECIFIED",
-                  "NumberBFramesBetweenReferenceFrames": 2,
-                  "RepeatPps": "DISABLED",
-                  "DynamicSubGop": "STATIC",
-                  "GopSize": 90,
-                  "GopBReference": "DISABLED",
-                  "SlowPal": "DISABLED",
-                  "EntropyEncoding": "CABAC",
                   "FramerateControl": "INITIALIZE_FROM_SOURCE",
-                  "FlickerAdaptiveQuantization": "DISABLED",
-                  "SpatialAdaptiveQuantization": "ENABLED",
-                  "TemporalAdaptiveQuantization": "ENABLED",
-                  "ParNumerator": 1,
-                  "ParDenominator": 1
+                  "GopSize": 90,
+                  "EntropyEncoding": "CABAC"
                 }
-              },
-              "TimecodeInsertion": "DISABLED",
-              "AntiAlias": "ENABLED",
-              "RespondToAfd": "NONE",
-              "Sharpness": 50,
-              "ColorMetadata": "INSERT"
+              }
             },
             "AudioDescriptions": [
               {
-                "AudioTypeControl": "FOLLOW_INPUT",
-                "AudioSourceName": "Audio Selector 1",
                 "CodecSettings": {
                   "Codec": "AAC",
                   "AacSettings": {
-                    "AudioDescriptionBroadcasterMix": "NORMAL",
                     "Bitrate": 64000,
-                    "RateControlMode": "CBR",
-                    "CodecProfile": "LC",
                     "CodingMode": "CODING_MODE_2_0",
-                    "RawFormat": "NONE",
-                    "SampleRate": 48000,
-                    "Specification": "MPEG4"
+                    "SampleRate": 48000
                   }
-                },
-                "LanguageCodeControl": "FOLLOW_INPUT"
+                }
               }
             ],
             "OutputSettings": {
-              "HlsSettings": {
-                "AudioGroupId": "audio",
-                "AudioOnlyContainer": "AUTOMATIC",
-                "IFrameOnlyManifest": "EXCLUDE",
-                "AudioTrackType": "ALTERNATE_AUDIO_AUTO_SELECT_DEFAULT"
-              }
+              "HlsSettings": {}
             },
             "ContainerSettings": {
-              "Container": "M3U8",
-              "M3u8Settings": {
-                "AudioFramesPerPes": 4,
-                "PcrControl": "PCR_EVERY_PES_PACKET",
-                "PmtPid": 480,
-                "PrivateMetadataPid": 503,
-                "ProgramNumber": 1,
-                "PatInterval": 0,
-                "PmtInterval": 0,
-                "VideoPid": 481,
-                "AudioPids": [
-                  482,
-                  483,
-                  484,
-                  485,
-                  486,
-                  487,
-                  488,
-                  489,
-                  490,
-                  491,
-                  492,
-                  493,
-                  494,
-                  495,
-                  496,
-                  497,
-                  498
-                ],
-                "NielsenId3Behavior": "NO_PASSTHROUGH",
-                "AudioDuration": "DEFAULT_CODEC_DURATION"
-              }
-            },
-            "NameModifier": "-480p"
+              "Container": "M3U8"
+            }
           },
           {
+            "NameModifier": "_240p",
             "VideoDescription": {
               "Width": 320,
               "Height": 240,
               "CodecSettings": {
                 "Codec": "H_264",
                 "H264Settings": {
-                  "RateControlMode": "QVBR",
-                  "QvbrSettings": {
-                    "QvbrQualityLevel": 5
-                  },
-                  "CodecProfile": "BASELINE",
+                  "RateControlMode": "CBR",
+                  "Bitrate": 800000,
+                  "CodecProfile": "MAIN",
                   "CodecLevel": "AUTO",
-                  "FieldEncoding": "PAFF",
-                  "SceneChangeDetect": "ENABLED",
-                  "QualityTuningLevel": "SINGLE_PASS",
-                  "FramerateConversionAlgorithm": "DUPLICATE_DROP",
-                  "UnregisteredSeiTimecode": "DISABLED",
-                  "GopSizeUnits": "FRAMES",
-                  "ParControl": "SPECIFIED",
-                  "NumberBFramesBetweenReferenceFrames": 1,
-                  "RepeatPps": "DISABLED",
-                  "DynamicSubGop": "STATIC",
-                  "GopSize": 90,
-                  "GopBReference": "DISABLED",
-                  "SlowPal": "DISABLED",
-                  "EntropyEncoding": "CAVLC",
                   "FramerateControl": "INITIALIZE_FROM_SOURCE",
-                  "FlickerAdaptiveQuantization": "DISABLED",
-                  "SpatialAdaptiveQuantization": "ENABLED",
-                  "TemporalAdaptiveQuantization": "ENABLED",
-                  "ParNumerator": 1,
-                  "ParDenominator": 1
+                  "GopSize": 90,
+                  "EntropyEncoding": "CABAC"
                 }
-              },
-              "TimecodeInsertion": "DISABLED",
-              "AntiAlias": "ENABLED",
-              "RespondToAfd": "NONE",
-              "Sharpness": 50,
-              "ColorMetadata": "INSERT"
+              }
             },
             "AudioDescriptions": [
               {
-                "AudioTypeControl": "FOLLOW_INPUT",
-                "AudioSourceName": "Audio Selector 1",
                 "CodecSettings": {
                   "Codec": "AAC",
                   "AacSettings": {
-                    "AudioDescriptionBroadcasterMix": "NORMAL",
-                    "Bitrate": 48000,
-                    "RateControlMode": "CBR",
-                    "CodecProfile": "LC",
+                    "Bitrate": 64000,
                     "CodingMode": "CODING_MODE_2_0",
-                    "RawFormat": "NONE",
-                    "SampleRate": 48000,
-                    "Specification": "MPEG4"
+                    "SampleRate": 48000
                   }
-                },
-                "LanguageCodeControl": "FOLLOW_INPUT"
+                }
               }
             ],
             "OutputSettings": {
-              "HlsSettings": {
-                "AudioGroupId": "audio",
-                "AudioOnlyContainer": "AUTOMATIC",
-                "IFrameOnlyManifest": "EXCLUDE",
-                "AudioTrackType": "ALTERNATE_AUDIO_AUTO_SELECT_DEFAULT"
-              }
+              "HlsSettings": {}
             },
             "ContainerSettings": {
-              "Container": "M3U8",
-              "M3u8Settings": {
-                "AudioFramesPerPes": 4,
-                "PcrControl": "PCR_EVERY_PES_PACKET",
-                "PmtPid": 480,
-                "PrivateMetadataPid": 503,
-                "ProgramNumber": 1,
-                "PatInterval": 0,
-                "PmtInterval": 0,
-                "VideoPid": 481,
-                "AudioPids": [
-                  482,
-                  483,
-                  484,
-                  485,
-                  486,
-                  487,
-                  488,
-                  489,
-                  490,
-                  491,
-                  492,
-                  493,
-                  494,
-                  495,
-                  496,
-                  497,
-                  498
-                ],
-                "NielsenId3Behavior": "NO_PASSTHROUGH",
-                "AudioDuration": "DEFAULT_CODEC_DURATION"
-              }
-            },
-            "NameModifier": "-240p"
-          }
-        ],
-        "AutomatedEncodingSettings": {
-          "AbrSettings": {
-            "AutoAbrSettings": {
-              "High": 0,
-              "Low": 0,
-              "Max": 8000000,
-              "Min": 400000
+              "Container": "M3U8"
             }
           }
-        }
+        ]
       }
     ],
-    "AdAvailOffset": 0,
     "Inputs": [
       {
         "AudioSelectors": {
           "Audio Selector 1": {
-            "Offset": 0,
-            "DefaultSelection": "DEFAULT",
-            "ProgramSelection": 1
+            "DefaultSelection": "DEFAULT"
           }
         },
-        "VideoSelector": {
-          "ColorSpace": "FOLLOW"
-        },
+        "VideoSelector": {},
         "FilterEnable": "AUTO",
         "PsiControl": "USE_PSI",
         "FilterStrength": 0,
         "DeblockFilter": "DISABLED",
         "DenoiseFilter": "DISABLED",
-        "TimecodeSource": "EMBEDDED",
-        "FileInput": "INPUT_PLACEHOLDER"
+        "TimecodeSource": "EMBEDDED"
       }
     ]
-  },
-  "Type": "CUSTOM",
-  "StatusUpdateInterval": "SECONDS_60",
-  "Priority": 0,
-  "HopDestinations": []
+  }
 };
