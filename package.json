@@ -1,0 +1,36 @@
+{
+  "name": "timeliner-poc",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk --profile TIMELINER_DEV",
+    "synth": "cdk synth --profile TIMELINER_DEV",
+    "deploy": "cdk deploy --profile TIMELINER_DEV",
+    "diff": "cdk diff --profile TIMELINER_DEV",
+    "bootstrap": "cdk bootstrap --profile TIMELINER_DEV",
+    "destroy": "cdk destroy --profile TIMELINER_DEV",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-as:danilo-as/timeliner-poc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@types/node": "^24.0.15",
+    "aws-cdk": "^2.1021.0",
+    "aws-cdk-lib": "^2.206.0",
+    "constructs": "^10.4.2",
+    "husky": "^9.1.7",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
