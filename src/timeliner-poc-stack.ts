@@ -9,6 +9,7 @@ export class TimelinerPocStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+
     // S3 Bucket para videos originales (input)
     const inputBucket = new s3.Bucket(this, 'TimelinerInputBucket', {
       bucketName: `timeliner-input-${cdk.Stack.of(this).account}-${cdk.Stack.of(this).region}`,
@@ -36,6 +37,7 @@ export class TimelinerPocStack extends cdk.Stack {
         expiration: cdk.Duration.days(30), // Eliminar videos después de 30 días
       }]
     });
+    cdk.Tags.of(inputBucket).add('POC', 'MediaConverter');
 
     // S3 Bucket para videos procesados (output)
     const outputBucket = new s3.Bucket(this, 'TimelinerOutputBucket', {
@@ -60,6 +62,7 @@ export class TimelinerPocStack extends cdk.Stack {
         expiration: cdk.Duration.days(90), // Mantener videos procesados por 90 días
       }]
     });
+    cdk.Tags.of(outputBucket).add('POC', 'MediaConverter');
 
     // Rol IAM para MediaConvert
     const mediaConvertRole = new iam.Role(this, 'MediaConvertRole', {
@@ -95,6 +98,7 @@ export class TimelinerPocStack extends cdk.Stack {
         })
       }
     });
+    cdk.Tags.of(mediaConvertRole).add('POC', 'MediaConverter');
 
     // CloudFront Origin Access Identity
     const originAccessIdentity = new cloudfront.OriginAccessIdentity(this, 'OAI', {
@@ -111,7 +115,7 @@ export class TimelinerPocStack extends cdk.Stack {
     // CloudFront Distribution
     const distribution = new cloudfront.Distribution(this, 'TimelinerDistribution', {
       defaultBehavior: {
-        origin: new origins.S3Origin(outputBucket, {
+        origin: origins.S3BucketOrigin.withOriginAccessIdentity(outputBucket, {
           originAccessIdentity: originAccessIdentity
         }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -127,6 +131,7 @@ export class TimelinerPocStack extends cdk.Stack {
       httpVersion: cloudfront.HttpVersion.HTTP2,
       minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
     });
+    cdk.Tags.of(distribution).add('POC', 'MediaConverter');
 
     // Outputs
     new cdk.CfnOutput(this, 'InputBucketName', {

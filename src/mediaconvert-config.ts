@@ -341,6 +341,111 @@ export const mediaConvertJobTemplate = {
               }
             },
             "NameModifier": "-480p"
+          },
+          {
+            "VideoDescription": {
+              "Width": 320,
+              "Height": 240,
+              "CodecSettings": {
+                "Codec": "H_264",
+                "H264Settings": {
+                  "RateControlMode": "QVBR",
+                  "QvbrSettings": {
+                    "QvbrQualityLevel": 5
+                  },
+                  "CodecProfile": "BASELINE",
+                  "CodecLevel": "AUTO",
+                  "FieldEncoding": "PAFF",
+                  "SceneChangeDetect": "ENABLED",
+                  "QualityTuningLevel": "SINGLE_PASS",
+                  "FramerateConversionAlgorithm": "DUPLICATE_DROP",
+                  "UnregisteredSeiTimecode": "DISABLED",
+                  "GopSizeUnits": "FRAMES",
+                  "ParControl": "SPECIFIED",
+                  "NumberBFramesBetweenReferenceFrames": 1,
+                  "RepeatPps": "DISABLED",
+                  "DynamicSubGop": "STATIC",
+                  "GopSize": 90,
+                  "GopBReference": "DISABLED",
+                  "SlowPal": "DISABLED",
+                  "EntropyEncoding": "CAVLC",
+                  "FramerateControl": "INITIALIZE_FROM_SOURCE",
+                  "FlickerAdaptiveQuantization": "DISABLED",
+                  "SpatialAdaptiveQuantization": "ENABLED",
+                  "TemporalAdaptiveQuantization": "ENABLED",
+                  "ParNumerator": 1,
+                  "ParDenominator": 1
+                }
+              },
+              "TimecodeInsertion": "DISABLED",
+              "AntiAlias": "ENABLED",
+              "RespondToAfd": "NONE",
+              "Sharpness": 50,
+              "ColorMetadata": "INSERT"
+            },
+            "AudioDescriptions": [
+              {
+                "AudioTypeControl": "FOLLOW_INPUT",
+                "AudioSourceName": "Audio Selector 1",
+                "CodecSettings": {
+                  "Codec": "AAC",
+                  "AacSettings": {
+                    "AudioDescriptionBroadcasterMix": "NORMAL",
+                    "Bitrate": 48000,
+                    "RateControlMode": "CBR",
+                    "CodecProfile": "LC",
+                    "CodingMode": "CODING_MODE_2_0",
+                    "RawFormat": "NONE",
+                    "SampleRate": 48000,
+                    "Specification": "MPEG4"
+                  }
+                },
+                "LanguageCodeControl": "FOLLOW_INPUT"
+              }
+            ],
+            "OutputSettings": {
+              "HlsSettings": {
+                "AudioGroupId": "audio",
+                "AudioOnlyContainer": "AUTOMATIC",
+                "IFrameOnlyManifest": "EXCLUDE",
+                "AudioTrackType": "ALTERNATE_AUDIO_AUTO_SELECT_DEFAULT"
+              }
+            },
+            "ContainerSettings": {
+              "Container": "M3U8",
+              "M3u8Settings": {
+                "AudioFramesPerPes": 4,
+                "PcrControl": "PCR_EVERY_PES_PACKET",
+                "PmtPid": 480,
+                "PrivateMetadataPid": 503,
+                "ProgramNumber": 1,
+                "PatInterval": 0,
+                "PmtInterval": 0,
+                "VideoPid": 481,
+                "AudioPids": [
+                  482,
+                  483,
+                  484,
+                  485,
+                  486,
+                  487,
+                  488,
+                  489,
+                  490,
+                  491,
+                  492,
+                  493,
+                  494,
+                  495,
+                  496,
+                  497,
+                  498
+                ],
+                "NielsenId3Behavior": "NO_PASSTHROUGH",
+                "AudioDuration": "DEFAULT_CODEC_DURATION"
+              }
+            },
+            "NameModifier": "-240p"
           }
         ],
         "AutomatedEncodingSettings": {
