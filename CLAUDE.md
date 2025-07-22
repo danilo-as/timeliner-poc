@@ -6,6 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Proof of Concept (PoC) project for Timeliner, built using AWS CDK with TypeScript. The infrastructure is deployed using AWS Cloud Development Kit (CDK).
 
+### Important: Package Versions
+This project uses exact npm package versions to ensure consistency across all environments. The `.npmrc` file is configured with `save-exact=true` to automatically save exact versions when installing new packages.
+
+**Always install dependencies using:**
+```bash
+npm ci
+```
+
+**Never use `npm install` for existing dependencies** as it may update packages unintentionally.
+
 ### AWS Profile
 This project uses the AWS profile `TIMELINER_DEV` for all AWS operations. Ensure this profile is configured in your AWS credentials before running any CDK commands.
 
@@ -35,7 +45,8 @@ timeliner-poc/
 ├── bin/                    # CDK app entry point
 │   └── timeliner-poc.ts   # Main CDK application file
 ├── src/                    # CDK stack definitions
-│   └── timeliner-poc-stack.ts  # Main stack definition
+│   ├── timeliner-poc-stack.ts  # Main stack definition
+│   └── mediaconvert-config.ts  # MediaConvert job template configuration
 ├── cdk.json               # CDK configuration
 └── tsconfig.json          # TypeScript configuration
 ```
@@ -46,6 +57,38 @@ timeliner-poc/
 - Main stack is defined in `src/timeliner-poc-stack.ts`
 - Entry point is `bin/timeliner-poc.ts` which instantiates the stack
 - Stack name: `TimelinerPocStack`
+
+### AWS Infrastructure Components
+
+#### S3 Buckets
+1. **Input Bucket** (`timeliner-input-{account}-{region}`)
+   - Stores original uploaded videos
+   - CORS enabled for web uploads
+   - 30-day lifecycle policy for automatic cleanup
+   - Server-side encryption enabled
+
+2. **Output Bucket** (`timeliner-output-{account}-{region}`)
+   - Stores processed videos in HLS format
+   - Accessible only through CloudFront
+   - 90-day lifecycle policy
+   - Server-side encryption enabled
+
+#### MediaConvert
+- **IAM Role**: Dedicated role with minimal permissions to read from input bucket and write to output bucket
+- **Job Template**: Pre-configured in `src/mediaconvert-config.ts` with:
+  - HLS output format
+  - Multiple quality levels (1080p, 720p, 480p)
+  - Adaptive bitrate streaming
+  - H.264 video codec with QVBR rate control
+  - AAC audio codec
+
+#### CloudFront Distribution
+- Origin: Output S3 bucket
+- HTTPS only (redirect HTTP to HTTPS)
+- Optimized caching policies
+- Compression enabled
+- HTTP/2 support
+- Restricted to US, Canada, and Europe (Price Class 100)
 
 ### Development Workflow
 1. Ensure AWS profile `TIMELINER_DEV` is configured: `aws configure --profile TIMELINER_DEV`

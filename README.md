@@ -10,8 +10,14 @@ Proof of Concept para Timeliner usando AWS CDK con TypeScript.
 
 ## Instalación
 
+**IMPORTANTE**: Este proyecto usa versiones exactas de paquetes npm para garantizar consistencia.
+
 ```bash
-npm install
+# Para instalación inicial o cuando el proyecto ya existe
+npm ci
+
+# NUNCA uses npm install para dependencias existentes
+# Solo usa npm install cuando agregues nuevos paquetes
 ```
 
 ## Configuración AWS
