@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeliner PoC - Video Player</title>
+    <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .video-section {
+            margin-top: 30px;
+        }
+        
+        .video-js {
+            width: 100%;
+            height: 400px;
+        }
+        
+        .info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .quality-selector {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .quality-btn {
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .quality-btn:hover {
+            background-color: #218838;
+        }
+        
+        .quality-btn.active {
+            background-color: #dc3545;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .success-message {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Timeliner PoC - Video Player</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="cloudfrontUrl">CloudFront Domain:</label>
+                <input type="text" id="cloudfrontUrl" placeholder="https://d1234567890.cloudfront.net" value="">
+            </div>
+            
+            <div class="input-group">
+                <label for="videoPath">Video Path (sin extensión):</label>
+                <input type="text" id="videoPath" placeholder="mi-video" value="">
+            </div>
+            
+            <div class="buttons">
+                <button class="btn-primary" onclick="loadVideo()">▶️ Cargar Video</button>
+                <button class="btn-secondary" onclick="loadExample()">📁 Cargar Ejemplo</button>
+                <button class="btn-secondary" onclick="clearAll()">🗑️ Limpiar</button>
+            </div>
+            
+            <div id="message"></div>
+        </div>
+        
+        <div class="video-section">
+            <video-js
+                id="video-player"
+                class="vjs-default-skin"
+                controls
+                preload="auto"
+                data-setup="{}">
+                <p class="vjs-no-js">
+                    Para ver este video necesitas habilitar JavaScript y usar un navegador que
+                    <a href="https://videojs.com/html5-video-support/" target="_blank">soporte video HTML5</a>.
+                </p>
+            </video-js>
+            
+            <div class="quality-selector" id="qualitySelector" style="display: none;">
+                <span style="font-weight: 600; margin-right: 10px;">Calidad:</span>
+                <button class="quality-btn" onclick="loadQuality('auto')">🔄 Auto (HLS)</button>
+                <button class="quality-btn" onclick="loadQuality('1080p')">🔥 1080p</button>
+                <button class="quality-btn" onclick="loadQuality('720p')">⚡ 720p</button>
+                <button class="quality-btn" onclick="loadQuality('480p')">📱 480p</button>
+                <button class="quality-btn" onclick="loadQuality('240p')">🔋 240p</button>
+            </div>
+            
+            <div class="info-panel" id="infoPanel" style="display: none;">
+                <div><strong>Estado:</strong> <span id="videoStatus">Esperando video...</span></div>
+                <div><strong>URL Actual:</strong> <span id="currentUrl">-</span></div>
+                <div><strong>Calidad:</strong> <span id="currentQuality">-</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+    <script>
+        let player;
+        let currentCloudFrontUrl = '';
+        let currentVideoPath = '';
+
+        // Inicializar Video.js
+        document.addEventListener('DOMContentLoaded', function() {
+            player = videojs('video-player', {
+                fluid: true,
+                responsive: true,
+                playbackRates: [0.5, 1, 1.25, 1.5, 2],
+                plugins: {}
+            });
+
+            player.on('loadstart', function() {
+                updateStatus('Cargando video...');
+            });
+
+            player.on('loadeddata', function() {
+                updateStatus('Video cargado exitosamente');
+                showMessage('✅ Video listo para reproducir', 'success');
+            });
+
+            player.on('error', function() {
+                updateStatus('Error al cargar video');
+                showMessage('❌ Error al cargar el video. Verifica la URL y que el video esté procesado.', 'error');
+            });
+
+            player.on('play', function() {
+                updateStatus('Reproduciendo...');
+            });
+
+            player.on('pause', function() {
+                updateStatus('Pausado');
+            });
+        });
+
+        function loadVideo() {
+            const cloudfrontUrl = document.getElementById('cloudfrontUrl').value.trim();
+            const videoPath = document.getElementById('videoPath').value.trim();
+
+            if (!cloudfrontUrl || !videoPath) {
+                showMessage('❌ Por favor ingresa tanto el dominio de CloudFront como la ruta del video.', 'error');
+                return;
+            }
+
+            // Limpiar https:// si está duplicado
+            const cleanUrl = cloudfrontUrl.replace(/\/+$/, '');
+            const videoUrl = `${cleanUrl}/${videoPath}`;
+
+            currentCloudFrontUrl = cleanUrl;
+            currentVideoPath = videoPath;
+
+            loadVideoUrl(videoUrl, 'auto');
+            document.getElementById('qualitySelector').style.display = 'flex';
+            document.getElementById('infoPanel').style.display = 'block';
+        }
+
+        function loadQuality(quality) {
+            if (!currentCloudFrontUrl || !currentVideoPath) {
+                showMessage('❌ Primero carga un video.', 'error');
+                return;
+            }
+
+            let videoUrl;
+            if (quality === 'auto') {
+                videoUrl = `${currentCloudFrontUrl}/${currentVideoPath}`;
+            } else {
+                videoUrl = `${currentCloudFrontUrl}/${currentVideoPath.replace('.m3u8', '')}_${quality}.m3u8`;
+            }
+
+            loadVideoUrl(videoUrl, quality);
+
+            // Actualizar botón activo
+            document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function loadVideoUrl(url, quality) {
+            updateStatus('Cargando video...');
+            updateCurrentUrl(url);
+            updateCurrentQuality(quality);
+
+            player.src({
+                src: url,
+                type: 'application/x-mpegURL'
+            });
+
+            player.load();
+        }
+
+        function loadExample() {
+            document.getElementById('cloudfrontUrl').value = 'https://d1234567890.cloudfront.net';
+            document.getElementById('videoPath').value = 'ejemplo-video';
+            showMessage('📋 Ejemplo cargado. Actualiza con tus valores reales.', 'success');
+        }
+
+        function clearAll() {
+            document.getElementById('cloudfrontUrl').value = '';
+            document.getElementById('videoPath').value = '';
+            document.getElementById('qualitySelector').style.display = 'none';
+            document.getElementById('infoPanel').style.display = 'none';
+            player.pause();
+            player.src('');
+            updateStatus('Esperando video...');
+            updateCurrentUrl('-');
+            updateCurrentQuality('-');
+            clearMessage();
+        }
+
+        function updateStatus(status) {
+            document.getElementById('videoStatus').textContent = status;
+        }
+
+        function updateCurrentUrl(url) {
+            document.getElementById('currentUrl').textContent = url;
+        }
+
+        function updateCurrentQuality(quality) {
+            document.getElementById('currentQuality').textContent = quality;
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}-message">${message}</div>`;
+        }
+
+        function clearMessage() {
+            document.getElementById('message').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
