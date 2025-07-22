@@ -18,6 +18,7 @@ export class TimelinerPocStack extends cdk.Stack {
       versioned: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: s3.BucketEncryption.S3_MANAGED,
+      objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_PREFERRED, // Habilitar ACLs para CloudFront
       lifecycleRules: [{
         id: 'delete-old-logs',
         enabled: true,
